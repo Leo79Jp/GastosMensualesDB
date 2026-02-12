@@ -1,0 +1,83 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">
+      <i class="bi bi-wallet2 me-2 text-info"></i>Gastos Familiares
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item ">
+            <a class="nav-link texto-cian  " href="/">
+                <i class="bi bi-house-door me-1"></i>Inicio
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link texto-cian" href="/reportes/historial">
+                <i class="bi bi-clock-history me-1"></i>Historial
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link texto-cian" href="/categorias">
+                <i class="bi bi-tags me-1"></i>Categorías
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link texto-cian" href="/reportes">
+                <i class="bi bi-bar-chart-line me-1"></i>Reportes
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link texto-cian" href="/usuarios">
+                <i class="bi bi-people me-1"></i>Usuarios
+            </a>
+        </li>
+      </ul>
+      
+      <div class="d-flex align-items-center gap-3">
+        <span class="badge rounded-pill bg-dark border border-secondary  texto-cian">
+            <%= usuariosActivos %> En línea
+        </span>
+        
+
+        <% if (locals.user) { %>
+          <div class="d-flex align-items-center">
+              <span class="text-light me-2 small"><%= user.nombre %></span>
+              <div class="position-relative me-3">
+
+<% 
+  // Lógica para determinar la ruta de la imagen
+  let avatarSrc = "/img/default.png"; // Valor inicial
+  if (user && user.avatar_url) {
+      if (user.avatar_url.startsWith('http')) {
+          avatarSrc = user.avatar_url; // Es una URL externa como la de Miriam
+      } else {
+          avatarSrc = "/img/" + user.avatar_url; // Es un archivo local como leo.webp
+      }
+  }
+%>
+<!-- <img src="<%= avatarSrc %>" 
+     class="rounded-circle border border-info shadow-sm" 
+     style="width: 35px; height: 35px; object-fit: cover;"
+     onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png';"> -->
+
+     <img src="<%= (user.avatar_url && user.avatar_url.startsWith('http')) ? user.avatar_url : '/img/' + (user.avatar_url || 'default.png') %>" 
+     class="rounded-circle border border-info" 
+     style="width: 35px; height: 35px; object-fit: cover;">
+
+                <span class="position-absolute top-0 start-100 translate-middle p-1 bg-success border border-dark rounded-circle"></span>
+              </div>
+              <a href="/logout" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-box-arrow-right"></i>
+              </a>
+          </div>
+        <% } else { %>
+          <a href="/login" class="btn btn-sm btn-outline-light me-2">Ingresar</a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</nav>

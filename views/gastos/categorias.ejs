@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <%- include('../partials/head') %> 
+    <title>Categorías - Control de Gastos</title>
+</head>
+
+<%- include('../partials/head') %> 
+<style>
+    .table-scroll {
+        max-height: 400px; /* Ajusta el tamaño que desees */
+        overflow-y: auto;
+    }
+    .table thead th {
+        position: sticky;
+        top: 0;
+        background-color: #f8f9fa;
+        z-index: 1;
+    }
+</style>
+
+<body class="bg-light d-flex flex-column min-vh-100">
+    <%- include('../partials/navbar') %>
+
+    <main class="container py-5 flex-grow-1">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-3">Nueva Categoría</h4>
+                        <form action="/categorias/guardar" method="POST">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre</label>
+                                <input type="text" name="nombre" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Tipo</label>
+                                <select name="es_fijo" class="form-select">
+                                    <option value="1">Fijo</option>
+                                    <option value="0">Variable</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Crear</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-3">Mis Categorías (Agrupadas)</h4>
+                        <div class="table-scroll border rounded">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Tipo</th>
+                                        <th class="text-end">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% categorias.forEach(cat => { %>
+                                        <tr>
+                                            <td><%= cat.nombre %></td>
+                                            <td>
+                                                <span class="badge <%= cat.es_fijo ? 'bg-info text-dark' : 'bg-warning text-dark' %>">
+                                                    <%= cat.es_fijo ? 'Fijo' : 'Variable' %>
+                                                </span>
+                                            </td>
+                                            <td class="text-end">
+                                                <button class="btn btn-sm btn-outline-primary border-0" 
+                                                        onclick="prepararEdicion('<%= cat.id %>', '<%= cat.nombre %>', '<%= cat.es_fijo %>')"
+                                                        data-bs-toggle="modal" data-bs-target="#editModal">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                
+                                                <form action="/categorias/borrar/<%= cat.id %>" method="POST" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger border-0"><i class="bi bi-trash"></i></button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="editForm" method="POST">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Editar Categoría</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" name="nombre" id="editNombre" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tipo</label>
+                            <select name="es_fijo" id="editEsFijo" class="form-select">
+                                <option value="1">Fijo</option>
+                                <option value="0">Variable</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function prepararEdicion(id, nombre, esFijo) {
+            document.getElementById('editForm').action = `/categorias/actualizar/${id}`;
+            document.getElementById('editNombre').value = nombre;
+            document.getElementById('editEsFijo').value = esFijo;
+        }
+    </script>
+    <%- include('../partials/footer') %>
+</body>
+</html>

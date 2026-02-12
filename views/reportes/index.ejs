@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <%- include('../partials/head') %>
+    <title>Reportes Anuales - Leo</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <%- include('../partials/navbar') %>
+<main class="container py-4 flex-grow-1">
+    <div class="container py-4">
+        <h2 class="fw-bold mb-4">📊 Análisis de Gastos <%= anioActual %></h2>
+
+        <div class="row g-4">
+            <div class="col-md-8">
+                <div class="card shadow-sm border-0 p-3">
+                    <h5 class="card-title">Evolución de Gastos Mensuales</h5>
+                    <canvas id="graficoAnual"></canvas>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 p-3">
+                    <h5 class="card-title">Distribución del Mes</h5>
+                    <canvas id="graficoCategorias"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // 1. Obtención segura de datos desde EJS (con manejo de error si vienen vacíos)
+    const rawGastos = JSON.parse('<%- JSON.stringify(gastosMensuales || []) %>');
+    const rawIngresos = JSON.parse('<%- JSON.stringify(ingresosMensuales || []) %>');
+    const rawCategorias = JSON.parse('<%- JSON.stringify(gastosPorCategoria || []) %>');
+
+    // 2. Preparación de datos para el Gráfico Anual
+    const datosGastos = Array(12).fill(0);
+    const datosIngresos = Array(12).fill(0);
+
+    rawGastos.forEach(g => { if(g.mes) datosGastos[g.mes - 1] = parseFloat(g.total) });
+    rawIngresos.forEach(i => { if(i.mes) datosIngresos[i.mes - 1] = parseFloat(i.total) });
+
+    // 3. Preparación de datos para el Gráfico de Categorías (Aquí estaba el error)
+    const etiquetasCat = rawCategorias.length > 0 ? rawCategorias.map(c => c.nombre) : ["Sin datos"];
+    const valoresCat = rawCategorias.length > 0 ? rawCategorias.map(c => parseFloat(c.total)) : [0];
+
+    // --- RENDERIZAR GRÁFICO ANUAL ---
+    const ctxAnual = document.getElementById('graficoAnual');
+    if (ctxAnual) {
+        new Chart(ctxAnual, {
+            type: 'bar',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                datasets: [
+                    {
+                        label: 'Ingresos (+)',
+                        data: datosIngresos,
+                        backgroundColor: '#198754'
+                    },
+                    {
+                        label: 'Gastos (-)',
+                        data: datosGastos,
+                        backgroundColor: '#dc3545'
+                    }
+                ]
+            },
+            options: { responsive: true }
+        });
+    }
+
+    // --- RENDERIZAR GRÁFICO DE CATEGORÍAS ---
+    const ctxCat = document.getElementById('graficoCategorias');
+    if (ctxCat) {
+        new Chart(ctxCat, {
+            type: 'doughnut',
+            data: {
+                labels: etiquetasCat, // Ahora seguro está definida
+                datasets: [{
+                    data: valoresCat, // Ahora seguro está definida
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+                }]
+            },
+            options: { responsive: true }
+        });
+    }
+</script>
+</main>
+    <%- include('../partials/footer') %>
+</body>
+</html>

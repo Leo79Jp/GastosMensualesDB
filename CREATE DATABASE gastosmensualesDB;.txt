@@ -1,0 +1,74 @@
+CREATE DATABASE "gastosmensualesDB";
+-- --- Estructura de la tabla usuarios ---
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    avatar_url VARCHAR(255) DEFAULT 'https://cdn-icons-png.flaticon.com/512/149/149071.png',
+    esta_en_linea BOOLEAN DEFAULT FALSE,
+    ultima_conexion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- --- Estructura de la tabla categorias_gastos ---
+CREATE TABLE categorias_gastos (
+    id SERIAL PRIMARY KEY,
+    usuario_id INT REFERENCES usuarios(id),
+    nombre VARCHAR(100),
+    es_fijo BOOLEAN DEFAULT FALSE
+);
+
+-- --- Estructura de la tabla gastos ---
+CREATE TABLE gastos (
+    id SERIAL PRIMARY KEY,
+    usuario_id INT REFERENCES usuarios(id),
+    categoria_id INT REFERENCES categorias_gastos(id),
+    monto DECIMAL(10,2),
+    fecha DATE,
+    pagado BOOLEAN DEFAULT FALSE,
+    comentario VARCHAR(255)
+);
+
+-- --- Estructura de la tabla ingresos ---
+CREATE TABLE ingresos (
+    id SERIAL PRIMARY KEY,
+    usuario_id INT REFERENCES usuarios(id),
+    monto DECIMAL(10,2),
+    descripcion VARCHAR(255),
+    fecha DATE
+);
+
+-- --- Inserción de Datos ---
+
+-- Usuarios
+INSERT INTO usuarios (id, nombre, email, password, avatar_url, esta_en_linea, ultima_conexion, fecha_creacion) 
+VALUES 
+(1, 'Leo', 'leojparodi@gmail.com', '123Admin', 'leo.webp', TRUE, '2026-02-04 14:18:50', '2026-02-03 04:32:22'),
+(2, 'Miriam', 'mirileas@gmail.com', '456Admin', 'https://cdn-icons-png.flaticon.com/512/149/149071.png', FALSE, '2026-02-03 06:27:53', '2026-02-03 06:25:41');
+
+-- Categorías
+INSERT INTO categorias_gastos (id, usuario_id, nombre, es_fijo) 
+VALUES 
+(1, 1, 'Gas', TRUE), (2, 1, 'Luz', TRUE), (3, 1, 'Agua', TRUE), (4, 1, 'Internet', TRUE),
+(5, 1, 'Alquiler', TRUE), (6, 1, 'Seguro', TRUE), (7, 1, 'Netflix/Spotify', TRUE),
+(8, 1, 'Almacén/Supermercado', FALSE), (9, 1, 'Carnicería', FALSE), (10, 1, 'Verdulería', FALSE),
+(11, 1, 'Nafta/Combustible', FALSE), (12, 1, 'Farmacia', FALSE), (13, 1, 'Cine/Salidas', FALSE),
+(14, 1, 'Restaurantes/Delivery', FALSE);
+
+-- Gastos
+INSERT INTO gastos (id, usuario_id, categoria_id, monto, fecha, pagado, comentario) 
+VALUES 
+(1, 1, 5, 150000.00, '2026-02-04', TRUE, 'Pague el alquiler con mercado pago');
+
+-- Ingresos
+INSERT INTO ingresos (id, usuario_id, monto, descripcion, fecha) 
+VALUES 
+(1, 1, 800000.00, 'Adelanto', '2026-02-04'),
+(2, 1, 1300000.00, 'Quincena', '2026-02-04');
+
+-- --- Sincronizar secuencias (Importante en PostgreSQL) ---
+SELECT setval('usuarios_id_seq', (SELECT MAX(id) FROM usuarios));
+SELECT setval('categorias_gastos_id_seq', (SELECT MAX(id) FROM categorias_gastos));
+SELECT setval('gastos_id_seq', (SELECT MAX(id) FROM gastos));
+SELECT setval('ingresos_id_seq', (SELECT MAX(id) FROM ingresos));

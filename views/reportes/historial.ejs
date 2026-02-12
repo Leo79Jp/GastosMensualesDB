@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <%- include('../partials/head') %> 
+    <title>Historial de Movimientos - Control de Gastos</title>
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+    <%- include('../partials/navbar') %>
+
+    <main class="container py-5 flex-grow-1">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold mb-0">
+                <i class="bi bi-clock-history text-primary me-2"></i>Historial de Movimientos
+            </h2>
+            <div class="btn-group">
+                <a href="/reportes" class="btn btn-outline-primary">
+                    <i class="bi bi-graph-up me-1"></i> Ver Gráficos
+                </a>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="ps-4">Fecha</th>
+                            <th>Usuario</th>
+                            <th>Detalle</th>
+                            <th>Tipo</th>
+                            <th class="text-end">Monto</th>
+                            <th class="text-center pe-4">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (movimientos.length > 0) { %>
+                            <% movimientos.forEach(mov => { %>
+                                <tr>
+                                    <td class="ps-4">
+                                        <%= new Date(mov.fecha).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }) %>
+                                    </td>
+                                    <td><span class="fw-semibold"><%= mov.usuario %></span></td>
+                                    <td>
+                                        <span class="fw-semibold"><%= mov.detalle %></span>
+                                    </td>
+                                    <td>
+                                        <% if (mov.tipo === 'ingreso') { %>
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">
+                                                <i class="bi bi-arrow-up-circle me-1"></i> INGRESO
+                                            </span>
+                                        <% } else { %>
+                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3">
+                                                <i class="bi bi-arrow-down-circle me-1"></i> GASTO
+                                            </span>
+                                        <% } %>
+                                    </td>
+                                    <td class="text-end fw-bold <%= mov.tipo === 'ingreso' ? 'text-success' : 'text-danger' %>">
+                                        <%= mov.tipo === 'ingreso' ? '+' : '-' %>$<%= mov.monto.toLocaleString('es-AR') %>
+                                    </td>
+                                    <td class="text-center pe-4">
+                                        <form action="/<%= mov.tipo %>s/borrar/<%= mov.id %>" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este registro?')">
+                                            <button type="submit" class="btn btn-link text-danger p-0">
+                                                <i class="bi bi-trash3-fill"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="bi bi-info-circle display-4 d-block mb-3"></i>
+                                    No hay movimientos registrados todavía.
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

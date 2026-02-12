@@ -1,0 +1,107 @@
+<%- include('../partials/head') %>
+<body class="bg-light d-flex flex-column min-vh-100">
+    <%- include('../partials/navbar') %>
+    <main class="container py-5 flex-grow-1">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 rounded-4 p-4">
+                    <h4 id="formTitle" class="fw-bold">Nuevo Usuario</h4>
+                    <form id="userForm" action="/usuarios/guardar" method="POST" enctype="multipart/form-data">
+                        <div class="text-center mb-3">
+                            <img id="preview" src="/img/default.png" class="rounded-circle border border-info shadow-sm" style="width: 120px; height: 120px; object-fit: cover;">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Cambiar Avatar</label>
+                            <input type="file" name="avatar" class="form-control form-control-sm" onchange="previewImage(event)">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Nombre</label>
+                            <input type="text" name="nombre" id="inputNombre" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Email</label>
+                            <input type="email" name="email" id="inputEmail" class="form-control" required>
+                        </div>
+                        <div id="passwordField" class="mb-3">
+                            <label class="form-label small fw-bold">Password</label>
+                            <input type="password" name="password" id="inputPassword" class="form-control">
+                            <small class="text-muted">Dejar en blanco si no desea cambiarla (solo edición)</small>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" id="submitBtn" class="btn btn-info">Registrar Usuario</button>
+                            <a href="/usuarios" id="cancelBtn" class="btn btn-light d-none">Cancelar Edición</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card shadow-sm border-0 rounded-4 p-4">
+                    <h4 class="fw-bold">Usuarios Registrados</h4>
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Avatar</th>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th class="text-end">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% usuarios.forEach(u => { %>
+                                    <tr>
+                                        <td>
+                                            <img src="/img/<%= u.avatar_url %>" class="rounded-circle" style="width: 45px; height: 45px; object-fit: cover;">
+                                        </td>
+                                        <td><strong><%= u.nombre %></strong></td>
+                                        <td class="text-muted small"><%= u.email %></td>
+                                        <td class="text-end">
+                                            <button class="btn btn-sm btn-outline-primary border-0" 
+                                                    onclick="prepararEdicionUsuario('<%= u.id %>', '<%= u.nombre %>', '<%= u.email %>', '<%= u.avatar_url %>')">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+                                            
+                                            <form action="/usuarios/borrar/<%= u.id %>" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar a este usuario?')">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger border-0"><i class="bi bi-trash"></i></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                document.getElementById('preview').src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+
+        function prepararEdicionUsuario(id, nombre, email, avatar) {
+            // Cambiamos el título y el destino del form
+            document.getElementById('formTitle').innerText = 'Editar Usuario';
+            document.getElementById('userForm').action = `/usuarios/actualizar/${id}`;
+            document.getElementById('submitBtn').innerText = 'Guardar Cambios';
+            document.getElementById('submitBtn').className = 'btn btn-warning';
+            document.getElementById('cancelBtn').classList.remove('d-none');
+
+            // Cargamos los datos en los inputs
+            document.getElementById('inputNombre').value = nombre;
+            document.getElementById('inputEmail').value = email;
+            document.getElementById('preview').src = `/img/${avatar}`;
+            
+            // La contraseña no es obligatoria al editar
+            document.getElementById('inputPassword').required = false;
+        }
+    </script>
+    <%- include('../partials/footer') %>
+</body>
