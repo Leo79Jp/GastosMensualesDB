@@ -24,17 +24,21 @@ const login = async (req, res) => {
 
         await User.updateOnlineStatus(user.id, 1);
 
-        // Creamos el token con los datos actuales de la DB
+        // --- EL ARREGLO ESTÁ AQUÍ ---
+        // Si process.env.JWT_SECRET no existe, usará la frase de la derecha
+        const secreto = process.env.JWT_SECRET || 'tu_clave_secreta_super_segura_123';
+
         const token = jwt.sign(
             { 
                 id: user.id, 
                 nombre: user.nombre, 
                 email: user.email,
-                avatar_url: user.avatar_url // <--- Usamos el nombre exacto de la DB
+                avatar_url: user.avatar_url 
             },
-            process.env.JWT_SECRET,
+            secreto, // <--- Usamos la variable que acabamos de definir
             { expiresIn: '24h' }
         );
+        // ----------------------------
 
         res.cookie('token', token, { httpOnly: true });
         return res.redirect('/');
