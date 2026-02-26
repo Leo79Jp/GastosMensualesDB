@@ -1,16 +1,14 @@
 const mysql = require('mysql2');
 
-// Vamos a poner los datos que me pasaste directo aquí 
-// para asegurar que NO use localhost bajo ninguna circunstancia
 const pool = mysql.createPool({
-    host: 'mysql.railway.internal', 
+    host: 'shuttle.proxy.rlwy.net', 
     user: 'root',
     password: 'gNvEfunyFzUblfeDyhjNQJJViiAjvrto',
     database: 'railway',
-    port: 3306,
+    port: 25127, // <--- El puerto mágico que encontramos
     waitForConnections: true,
     connectionLimit: 10,
-    connectTimeout: 20000 // Aumentamos a 20 seg por si acaso
+    connectTimeout: 20000 
 });
 
 module.exports = pool.promise();
