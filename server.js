@@ -1,5 +1,12 @@
 // 1. Cargar variables de entorno (SIEMPRE PRIMERO)
-require('dotenv').config({ path: '.env.local' }); 
+// require('dotenv').config({ path: '.env.local' }); 
+// Busca el archivo .env.local solo si existe, si no, usa las variables del sistema (Railway)
+const fs = require('fs');
+if (fs.existsSync('.env.local')) {
+    require('dotenv').config({ path: '.env.local' });
+} else {
+    require('dotenv').config(); // En Railway leerá las variables que configures en su panel
+}
 
 const express = require('express');
 const session = require('express-session');

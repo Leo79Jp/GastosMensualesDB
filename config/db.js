@@ -1,23 +1,14 @@
 const mysql = require('mysql2');
-// Si en producción usas Postgres, necesitarías instalar 'pg' y adaptar aquí.
-// Pero si usas un servicio que soporta MySQL en ambos, quédate con mysql2.
+require('dotenv').config(); // Asegúrate de que esté aquí si no lo pusiste en index.js
 
-let pool;
-
-if (process.env.DATABASE_URL) {
-    // CONFIGURACIÓN PARA PRODUCCIÓN (Postgres o MySQL remoto)
-    // Aquí es donde conectarías a tu DB de producción
-    // pool = ...
-} else {
-    // CONFIGURACIÓN LOCAL (Tu código actual)
-    pool = mysql.createPool({
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASS,
-        database: process.env.DB_NAME,
-        waitForConnections: true,
-        connectionLimit: 10
-    });
-}
+const pool = mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT || 3306, // Usa el puerto del .env o 3306 por defecto
+    waitForConnections: true,
+    connectionLimit: 10
+});
 
 module.exports = pool.promise();
