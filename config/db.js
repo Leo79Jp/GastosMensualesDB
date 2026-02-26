@@ -1,17 +1,17 @@
 const mysql = require('mysql2');
 
-// Intentamos usar la URL que Railway SÍ te está entregando según tus logs
-const rawUrl = process.env.RAILWAY_SERVICE_GASTOSMENSUALESDB_URL;
-// Le agregamos el protocolo mysql:// porque a veces Railway lo manda pelado
-const dbUri = rawUrl.startsWith('mysql://') ? rawUrl : `mysql://root:${process.env.MYSQLPASSWORD}@${rawUrl}:3306/railway`;
-
+// Ponemos los datos directamente para saltarnos el fallo del panel
 const pool = mysql.createPool({
-    uri: dbUri,
+    host: 'gastosmensualesdb-production.up.railway.app',
+    user: 'root',
+    password: 'gNvEfunyFzUblfeDyhjNQJJViiAjvrto', 
+    database: 'railway',
+    port: 3306,
     waitForConnections: true,
     connectionLimit: 10
 });
 
-console.log('--- INTENTO CON URL DE SERVICIO ---');
-console.log('¿Tenemos Password para la URL?:', !!process.env.MYSQLPASSWORD);
+console.log('--- INTENTO DE EMERGENCIA ---');
+console.log('Conectando directamente con datos fijos...');
 
 module.exports = pool.promise();
