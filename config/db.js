@@ -1,8 +1,8 @@
 const mysql = require('mysql2');
 
-// Armamos la conexión manualmente con los datos del panel
+// Usamos las variables del panel. Si no existen, fallará con un error claro.
 const pool = mysql.createPool({
-    host: process.env.MYSQLHOST || 'gastosmensualesdb-production.up.railway.app',
+    host: process.env.MYSQLHOST || process.env.RAILWAY_SERVICE_GASTOSMENSUALESDB_URL,
     user: process.env.MYSQLUSER || 'root',
     password: process.env.MYSQLPASSWORD,
     database: process.env.MYSQLDATABASE || 'railway',
@@ -12,8 +12,8 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-console.log('--- INTENTO DE CONEXIÓN DB ---');
-console.log('Host:', process.env.MYSQLHOST || 'Usando fallback');
-console.log('Usuario:', process.env.MYSQLUSER || 'Usando fallback');
+console.log('--- CONEXIÓN DB DETECTADA ---');
+console.log('Host detectado:', process.env.MYSQLHOST ? 'SÍ ✅' : 'NO (Usando URL de servicio) 🔍');
+console.log('Password detectada:', process.env.MYSQLPASSWORD ? 'SÍ ✅' : 'NO ❌');
 
 module.exports = pool.promise();
