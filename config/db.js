@@ -1,16 +1,20 @@
 const mysql = require('mysql2');
 
+// Railway inyecta DATABASE_URL automáticamente si está vinculada
 const pool = mysql.createPool({
-    host: process.env.MYSQLHOST,
-    user: process.env.MYSQLUSER,
-    password: process.env.MYSQLPASSWORD,
-    database: process.env.MYSQLDATABASE,
-    port: parseInt(process.env.MYSQLPORT) || 3306,
+    uri: process.env.DATABASE_URL,
     waitForConnections: true,
-    connectionLimit: 10
+    connectionLimit: 10,
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0
 });
 
-// Este log nos confirmará si la Opción A funcionó
-console.log('Intentando conectar a DB en:', process.env.MYSQLHOST, 'Puerto:', process.env.MYSQLPORT);
+// Cambiamos el log para que sea más informativo
+if (process.env.DATABASE_URL) {
+    console.log('✅ DATABASE_URL detectada. Intentando conexión...');
+} else {
+    console.error('❌ ERROR: DATABASE_URL no encontrada en las variables de entorno.');
+}
 
 module.exports = pool.promise();
