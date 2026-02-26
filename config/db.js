@@ -1,9 +1,8 @@
 const mysql = require('mysql2');
 
 const pool = mysql.createPool({
-    // Prioridad 1: Variables nativas de Railway (ignoran el .env.local)
-    // Prioridad 2: Tus variables DB_HOST etc.
-    // Prioridad 3: Localhost para tu PC
+    // Si Railway inyecta sus variables internas (MYSQLHOST), úsalas. 
+    // Esto ignora cualquier cosa que diga el archivo .env.local
     host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
     user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
     password: process.env.MYSQLPASSWORD || process.env.DB_PASS,
