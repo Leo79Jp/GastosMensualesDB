@@ -5,7 +5,7 @@ const pool = mysql.createPool({
     // O usa la variable que Railway genera automáticamente
     host: process.env.MYSQLHOST || 'mysql.railway.internal', 
     user: 'root',
-    password: 'gNvEfunyFzUblfeDyhjNQJJViiAjvrto', // La que ya pusiste
+    password: '', // La que ya pusiste
     database: 'railway',
     port: 3306,
     waitForConnections: true,
