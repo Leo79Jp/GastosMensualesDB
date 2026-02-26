@@ -10,7 +10,7 @@ const pool = mysql.createPool({
     connectionLimit: 10
 });
 
-// Esto nos dirá en el log qué valores está intentando usar (SIN la contraseña)
+// Este log nos confirmará si la Opción A funcionó
 console.log('Intentando conectar a DB en:', process.env.MYSQLHOST, 'Puerto:', process.env.MYSQLPORT);
 
 module.exports = pool.promise();
