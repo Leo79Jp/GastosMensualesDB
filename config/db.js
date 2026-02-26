@@ -1,16 +1,16 @@
 const mysql = require('mysql2');
 
 const pool = mysql.createPool({
-    // Aquí NO ponemos valores de respaldo. 
-    // Si la variable no está en Railway, el servidor fallará (que es lo correcto por seguridad).
-    host: process.env.MYSQLHOST, 
+    host: process.env.MYSQLHOST,
     user: process.env.MYSQLUSER,
     password: process.env.MYSQLPASSWORD,
     database: process.env.MYSQLDATABASE,
-    port: process.env.MYSQLPORT || 3306, // El puerto suele ser estándar
+    port: parseInt(process.env.MYSQLPORT) || 3306,
     waitForConnections: true,
-    connectionLimit: 10,
-    connectTimeout: 20000 
+    connectionLimit: 10
 });
+
+// Esto nos dirá en el log qué valores está intentando usar (SIN la contraseña)
+console.log('Intentando conectar a DB en:', process.env.MYSQLHOST, 'Puerto:', process.env.MYSQLPORT);
 
 module.exports = pool.promise();
