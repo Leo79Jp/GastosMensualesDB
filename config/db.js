@@ -1,21 +1,19 @@
 const mysql = require('mysql2');
 
-// Intentamos primero la variable que Railway SÍ está inyectando según tus logs
-// Si no, probamos con la estándar por si acaso
-const dbUri = process.env.RAILWAY_SERVICE_GASTOSMENSUALESDB_URL || process.env.DATABASE_URL;
-
+// Armamos la conexión manualmente con los datos del panel
 const pool = mysql.createPool({
-    uri: dbUri, 
+    host: process.env.MYSQLHOST || 'gastosmensualesdb-production.up.railway.app',
+    user: process.env.MYSQLUSER || 'root',
+    password: process.env.MYSQLPASSWORD,
+    database: process.env.MYSQLDATABASE || 'railway',
+    port: process.env.MYSQLPORT || 3306,
     waitForConnections: true,
     connectionLimit: 10,
-    connectTimeout: 20000 
+    queueLimit: 0
 });
 
 console.log('--- INTENTO DE CONEXIÓN DB ---');
-if (dbUri) {
-    console.log('✅ Usando URL encontrada en el sistema.');
-} else {
-    console.error('❌ ERROR: No se encontró ninguna URL de base de datos en process.env');
-}
+console.log('Host:', process.env.MYSQLHOST || 'Usando fallback');
+console.log('Usuario:', process.env.MYSQLUSER || 'Usando fallback');
 
 module.exports = pool.promise();
