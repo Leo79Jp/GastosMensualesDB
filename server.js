@@ -1,6 +1,11 @@
-// 1. Cargar variables de entorno (Prioriza el panel de Railway)
-require('dotenv').config(); 
 
+console.log("--- INICIO DEL SERVIDOR ---");
+console.log("Revisando proceso ANTES de dotenv:", process.env.MYSQLHOST);
+require('dotenv').config();
+console.log("Revisando proceso DESPUÉS de dotenv:", process.env.MYSQLHOST);// 1. Cargar variables de entorno (Prioriza el panel de Railway)
+
+// Inspección de variables disponibles (solo nombres por seguridad)
+console.log("Variables detectadas:", Object.keys(process.env).filter(key => key.includes('MYSQL') || key.includes('JWT')));
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
