@@ -1,20 +1,21 @@
 const mysql = require('mysql2');
 
-// Railway inyecta DATABASE_URL automáticamente si está vinculada
+// Intentamos primero la variable que Railway SÍ está inyectando según tus logs
+// Si no, probamos con la estándar por si acaso
+const dbUri = process.env.RAILWAY_SERVICE_GASTOSMENSUALESDB_URL || process.env.DATABASE_URL;
+
 const pool = mysql.createPool({
-    uri: process.env.DATABASE_URL,
+    uri: dbUri, 
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0,
-    enableKeepAlive: true,
-    keepAliveInitialDelay: 0
+    connectTimeout: 20000 
 });
 
-// Cambiamos el log para que sea más informativo
-if (process.env.DATABASE_URL) {
-    console.log('✅ DATABASE_URL detectada. Intentando conexión...');
+console.log('--- INTENTO DE CONEXIÓN DB ---');
+if (dbUri) {
+    console.log('✅ Usando URL encontrada en el sistema.');
 } else {
-    console.error('❌ ERROR: DATABASE_URL no encontrada en las variables de entorno.');
+    console.error('❌ ERROR: No se encontró ninguna URL de base de datos en process.env');
 }
 
 module.exports = pool.promise();
