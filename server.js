@@ -33,9 +33,12 @@ app.use(async (req, res, next) => {
         // Conteo de usuarios (siempre se intenta)
         res.locals.usuariosActivos = await Usuario.getOnlineCount();
 
-        if (token) {
-            // Verificamos el token usando la variable del panel
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+if (token) {
+            // 1. Definimos un secreto de respaldo (EL MISMO que usaste en el controlador)
+            const secreto = process.env.JWT_SECRET || 'tu_clave_secreta_super_segura_123';
+
+            // 2. Verificamos el token usando ese secreto
+            const decoded = jwt.verify(token, secreto);
             res.locals.user = decoded;
             
             const mesActual = new Date().getMonth() + 1;
@@ -52,8 +55,7 @@ app.use(async (req, res, next) => {
                 gastos: totalGastos,
                 balance: totalIngresos - totalGastos
             };
-        }
-        
+        }        
         next();
     } catch (error) {
         console.error("Error en middleware global:", error.message);

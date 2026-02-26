@@ -1,11 +1,13 @@
 const mysql = require('mysql2');
 
 const pool = mysql.createPool({
-    host: 'shuttle.proxy.rlwy.net', 
-    user: 'root',
-    password: 'gNvEfunyFzUblfeDyhjNQJJViiAjvrto',
-    database: 'railway',
-    port: 25127, // <--- El puerto mágico que encontramos
+    // Aquí NO ponemos valores de respaldo. 
+    // Si la variable no está en Railway, el servidor fallará (que es lo correcto por seguridad).
+    host: process.env.MYSQLHOST, 
+    user: process.env.MYSQLUSER,
+    password: process.env.MYSQLPASSWORD,
+    database: process.env.MYSQLDATABASE,
+    port: process.env.MYSQLPORT || 3306, // El puerto suele ser estándar
     waitForConnections: true,
     connectionLimit: 10,
     connectTimeout: 20000 
