@@ -1,18 +1,10 @@
-// 1. Cargar variables de entorno (SIEMPRE PRIMERO)
-// require('dotenv').config({ path: '.env.local' }); 
-// Busca el archivo .env.local solo si existe, si no, usa las variables del sistema (Railway)
-const fs = require('fs');
-if (fs.existsSync('.env.local')) {
-    require('dotenv').config({ path: '.env.local' });
-} else {
-    require('dotenv').config(); // En Railway leerá las variables que configures en su panel
-}
+// 1. Cargar variables de entorno (Prioriza el panel de Railway)
+require('dotenv').config(); 
 
 const express = require('express');
-const session = require('express-session');
 const path = require('path');
 const cookieParser = require('cookie-parser');
-const jwt = require('jsonwebtoken'); // <--- ¡IMPORTANTE: Faltaba esta línea!
+const jwt = require('jsonwebtoken');
 const db = require('./config/db'); 
 const Usuario = require('./models/modelUser'); 
 
@@ -26,73 +18,26 @@ app.set('views', path.join(__dirname, 'views'));
 // MIDDLEWARES DE BASE
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser()); // <--- cookieParser debe ir antes del middleware global
+app.use(cookieParser());
 
-// OPCIONAL: Ya no necesitas express-session si usas JWT al 100%, 
-// pero si la dejas, que sea antes de las rutas.
-
-// MIDDLEWARE GLOBAL (JWT + Usuarios Activos)
-// app.use(async (req, res, next) => {
-//     try {
-//         const token = req.cookies.token;
-//         let user = null;
-//         let resumen = { balance: 0, gastos: 0 };
-//         const Ingreso = require('./models/modelIngreso'); 
-
-//         if (token) {
-//             user = jwt.verify(token, process.env.JWT_SECRET);
-            
-//             const mesActual = new Date().getMonth() + 1;
-//             const anioActual = new Date().getFullYear();
-
-//             // 1. Primero ejecutamos las consultas (Ojo al orden)
-//             const totalIngresos = await Ingreso.getTotalMes(user.id, mesActual, anioActual);
-            
-//             const [gastosRows] = await db.execute(
-//                 'SELECT SUM(monto) as total FROM gastos WHERE usuario_id = ? AND MONTH(fecha) = ? AND YEAR(fecha) = ?',
-//                 [user.id, mesActual, anioActual]
-//             );
-
-//             // 2. Ahora sí, asignamos los valores una sola vez
-//             const totalGastos = gastosRows[0].total || 0;
-            
-//             resumen.gastos = totalGastos;
-//             resumen.balance = totalIngresos - totalGastos;
-//         }
-
-//         res.locals.user = user;
-//         res.locals.resumen = resumen;
-//         // Solo intentamos contar activos si el modelo Usuario está importado
-//         res.locals.usuariosActivos = (typeof Usuario !== 'undefined') ? await Usuario.getOnlineCount() : 0;
-        
-//         next();
-//     } catch (error) {
-//         // Si el token expira o falla, limpiamos todo
-//         res.locals.user = null;
-//         res.locals.resumen = { balance: 0, gastos: 0 };
-//         next();
-//     }
-// });
-
+// MIDDLEWARE GLOBAL (JWT + Resumen de Gastos + Usuarios Activos)
 app.use(async (req, res, next) => {
-    // 1. Definimos valores por defecto SIEMPRE
     res.locals.user = null;
     res.locals.resumen = { balance: 0, gastos: 0 };
-    res.locals.usuariosActivos = 0; // <--- Aquí evitamos el "is not defined"
+    res.locals.usuariosActivos = 0;
 
     try {
         const token = req.cookies.token;
         const Ingreso = require('./models/modelIngreso'); 
 
-        // 2. Intentamos el conteo global (Independiente de si hay token o no)
-        // Usamos el modelo que me acabas de pasar
+        // Conteo de usuarios (siempre se intenta)
         res.locals.usuariosActivos = await Usuario.getOnlineCount();
 
         if (token) {
+            // Verificamos el token usando la variable del panel
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             res.locals.user = decoded;
             
-            // ... resto de tu lógica de resumen (balance y gastos) ...
             const mesActual = new Date().getMonth() + 1;
             const anioActual = new Date().getFullYear();
             
@@ -112,21 +57,21 @@ app.use(async (req, res, next) => {
         next();
     } catch (error) {
         console.error("Error en middleware global:", error.message);
-        // No hace falta limpiar res.locals aquí porque ya tienen valores por defecto arriba
         next();
     }
 });
 
-const verificarToken = require('./middleware/authMiddleware'); // El que corregimos antes
 // RUTAS
+const verificarToken = require('./middleware/authMiddleware');
 const routeAuth = require('./routes/routesAuth');
 const routeGastos = require('./routes/routesGastos');
 const routeIngresos = require('./routes/routesIngresos');
 const routeReportes = require('./routes/routesReportes');
 const routeCategorias = require('./routes/routesCategorias');
 const routeUsuarios = require('./routes/routesUsuarios');
+
 app.use('/', routeAuth);
-app.use('/gastos', verificarToken, routeGastos );
+app.use('/gastos', verificarToken, routeGastos);
 app.use('/ingresos', verificarToken, routeIngresos);
 app.use('/reportes', verificarToken, routeReportes);
 app.use('/categorias', verificarToken, routeCategorias);
@@ -136,6 +81,7 @@ app.get('/', (req, res) => {
     res.render('index'); 
 });
 
-app.listen(port, () => {
-    console.log(`Servidor en http://localhost:${port}`);
+// Escuchar en 0.0.0.0 para Railway
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Servidor corriendo en el puerto ${port}`);
 });
